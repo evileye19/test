@@ -26,7 +26,8 @@ jobs:
         export ANDROID_SDK_ROOT=$ANDROID_HOME
         export NDK_PATH=$ANDROID_HOME/ndk/$ANDROID_NDK
         export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-        sdkmanager --install "ndk;$ANDROID_NDK"
+        echo y | sdkmanager --update >> log.txt
+        echo y | sdkmanager --install "ndk;$ANDROID_NDK" >> log.txt
     - name: Build with gradle
       run: |
         set -e
