@@ -42,13 +42,25 @@ jobs:
         export NDK_PATH=$ANDROID_HOME/ndk/$ANDROID_NDK
         export HOST_PLATFORM="linux-x86_64"
         export ENABLED_DECODERS=(vorbis opus flac alac pcm_mulaw pcm_alaw mp3 amrnb amrwb aac ac3 eac3 dca mlp truehd)
+        git config --global advice.detachedHead false
         git clone -b $EXOPLAYER https://github.com/google/ExoPlayer.git
         export FFMPEG_MODULE_PATH=$PWD/ExoPlayer/extensions/ffmpeg/src/main
         pushd $FFMPEG_MODULE_PATH/jni
         git clone -b $FFMPEG git://source.ffmpeg.org/ffmpeg
 
-        # Build FFmpeg untuk armeabi-v7a
         cd ffmpeg
+        COMMON_OPTIONS="
+            --target-os=android
+            --enable-static
+            --disable-shared
+            --disable-doc
+            --disable-programs
+            --disable-everything
+            --enable-swresample
+            ${ENABLED_DECODERS[@]/#/--enable-decoder=}
+        "
+
+        # Build untuk armeabi-v7a
         ./configure \
             --libdir=android-libs/armeabi-v7a \
             --arch=arm \
@@ -60,18 +72,12 @@ jobs:
             --strip="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-strip" \
             --extra-cflags="-march=armv7-a -mfloat-abi=softfp" \
             --extra-ldflags="-Wl,--fix-cortex-a8" \
-            --enable-static \
-            --disable-shared \
-            --disable-doc \
-            --disable-programs \
-            --disable-everything \
-            --enable-swresample \
-            ${ENABLED_DECODERS[@]/#/--enable-decoder=}
+            $COMMON_OPTIONS
         make -j$(nproc)
         make install-libs
         make clean
 
-        # Build FFmpeg untuk arm64-v8a
+        # Build untuk arm64-v8a
         ./configure \
             --libdir=android-libs/arm64-v8a \
             --arch=aarch64 \
@@ -81,18 +87,12 @@ jobs:
             --ar="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-ar" \
             --ranlib="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-ranlib" \
             --strip="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-strip" \
-            --enable-static \
-            --disable-shared \
-            --disable-doc \
-            --disable-programs \
-            --disable-everything \
-            --enable-swresample \
-            ${ENABLED_DECODERS[@]/#/--enable-decoder=}
+            $COMMON_OPTIONS
         make -j$(nproc)
         make install-libs
         make clean
 
-        # Build FFmpeg untuk x86
+        # Build untuk x86
         ./configure \
             --libdir=android-libs/x86 \
             --arch=x86 \
@@ -103,18 +103,12 @@ jobs:
             --ranlib="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-ranlib" \
             --strip="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-strip" \
             --disable-asm \
-            --enable-static \
-            --disable-shared \
-            --disable-doc \
-            --disable-programs \
-            --disable-everything \
-            --enable-swresample \
-            ${ENABLED_DECODERS[@]/#/--enable-decoder=}
+            $COMMON_OPTIONS
         make -j$(nproc)
         make install-libs
         make clean
 
-        # Build FFmpeg untuk x86_64
+        # Build untuk x86_64
         ./configure \
             --libdir=android-libs/x86_64 \
             --arch=x86_64 \
@@ -125,13 +119,7 @@ jobs:
             --ranlib="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-ranlib" \
             --strip="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-strip" \
             --disable-asm \
-            --enable-static \
-            --disable-shared \
-            --disable-doc \
-            --disable-programs \
-            --disable-everything \
-            --enable-swresample \
-            ${ENABLED_DECODERS[@]/#/--enable-decoder=}
+            $COMMON_OPTIONS
         make -j$(nproc)
         make install-libs
         make clean
