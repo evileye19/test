@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      ANDROID_NDK_VERSION: "27.0.12077973"
+      ANDROID_NDK_VERSION: "21.4.7075529"
       EXOPLAYER: "r2.19.1"
       FFMPEG: "release/4.4"
     steps:
