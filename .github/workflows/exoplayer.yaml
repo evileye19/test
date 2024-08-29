@@ -42,7 +42,7 @@ jobs:
     - name: Copy FFmpeg to folder
       run: |
         mkdir -p Exoplayer/ffmpeg-libs
-        cp ExoPlayer/extensions/ffmpeg/buildout/outputs/aar/extension-ffmpeg-release.aar Exoplayer/ffmpeg-libs/
+        find . -name "*.aar" -exec cp {} Exoplayer/ffmpeg-libs/ \;
     - name: Commit and push changes
       run: |
         git config --local user.email "action@github.com"
@@ -54,4 +54,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ffmpeg-aar
-        path: Exoplayer/ffmpeg-libs/extension-ffmpeg-release.aar
+        path: Exoplayer/ffmpeg-libs/*.aar
