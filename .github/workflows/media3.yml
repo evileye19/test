@@ -9,7 +9,7 @@ jobs:
       ANDROID_NDK_VERSION: "21.4.7075529"
       MEDIA3: "1.4.1"
       FFMPEG: "release/7.0"
-      ANDROID_ABI: 19
+      ANDROID_ABI: 21
     steps:
     - name: Set up checkout
       uses: actions/checkout@v4
