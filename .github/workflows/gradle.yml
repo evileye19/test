@@ -8,7 +8,7 @@ jobs:
     env:
       ANDROID_NDK_VERSION: "21.4.7075529"
       MEDIA3: "1.4.1"
-      FFMPEG: "release/5.0"
+      FFMPEG: "release/7.0"
       ANDROID_ABI: 19  # Sesuaikan dengan minSdk aplikasi Anda
     steps:
     - name: Set up checkout
@@ -19,11 +19,15 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v2
+      uses: android-actions/setup-android@v4
     - name: Install NDK
       run: |
         sdkmanager --install "ndk;${{ env.ANDROID_NDK_VERSION }}"
-    - name: Build FFmpeg
+    - name: Install pkg-config
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y pkg-config
+    - name: Build with gradle
       run: |
         set -e
         export NDK_PATH=$ANDROID_NDK_HOME
@@ -36,6 +40,10 @@ jobs:
         rm -rf /usr/local/bin/cmake
         ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM $ANDROID_ABI ${ENABLED_DECODERS[@]}
         popd
+    - name: Build AAR
+      run: |
+        cd media
+        ./gradlew :libraries:decoder_ffmpeg:assembleRelease
     - name: Copy FFmpeg to folder
       run: |
         mkdir -p Exoplayer/ffmpeg-libs
