@@ -16,7 +16,7 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
-    - name: Build Ffmpeg Exoplayer
+    - name: Build with Gradle
       run: |
         set -e  # Exit on any error
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
@@ -32,16 +32,16 @@ jobs:
         export FFMPEG_EXT_PATH=$PWD/media/libraries/decoder_ffmpeg/src/main
         export HOST_PLATFORM="linux-x86_64"
         export ENABLED_DECODERS=(opus flac alac pcm_mulaw pcm_alaw mp3 amrnb amrwb aac ac3 eac3 dca mlp truehd vorbis)
-        export ANDROID_ABI="armeabi-v7a arm64-v8a x86 x86_64"
+        export ANDROID_ABIS="armeabi-v7a arm64-v8a x86 x86_64"
         echo "FFMPEG_EXT_PATH: $FFMPEG_EXT_PATH"
         echo "NDK_PATH: $NDK_PATH"
         echo "HOST_PLATFORM: $HOST_PLATFORM"
         echo "ENABLED_DECODERS: ${ENABLED_DECODERS[@]}"
-        echo "ANDROID_ABI: $ANDROID_ABI"
+        echo "ANDROID_ABIS: $ANDROID_ABIS"
         pushd $FFMPEG_EXT_PATH/jni
         git clone -b $FFMPEG git://source.ffmpeg.org/ffmpeg
         rm -rf /usr/local/bin/cmake
-        ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM ${ENABLED_DECODERS[@]}
+        ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM $ANDROID_ABIS ${ENABLED_DECODERS[@]}
         popd
         pushd $FFMPEG_EXT_PATH/jni/ffmpeg
         ./configure --help
