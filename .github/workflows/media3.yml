@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      ANDROID_NDK_VERSION: "21.4.7075529"
+      ANDROID_NDK_VERSION: "27.0.12077973"
       MEDIA3: "1.4.1"
       FFMPEG: "release/7.0"
       ANDROID_ABI: 21
@@ -27,7 +27,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y pkg-config
-    - name: Build FFmpeg Media3
+    - name: Build with gradle
       run: |
         set -e
         export NDK_PATH=$ANDROID_NDK_HOME
@@ -40,14 +40,12 @@ jobs:
         rm -rf /usr/local/bin/cmake
         ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM $ANDROID_ABI ${ENABLED_DECODERS[@]}
         popd
-    - name: Build with gradle
-      run: |
-        cd media
+        pushd media
         ./gradlew :libraries:decoder_ffmpeg:assembleRelease
     - name: Copy FFmpeg to folder
       run: |
         mkdir -p Exoplayer/ffmpeg-libs
-        cp media/libraries/decoder_ffmpeg/build/outputs/aar/decoder_ffmpeg-release.aar Exoplayer/ffmpeg-libs/
+        find . -name "*.aar" -exec cp {} Exoplayer/ffmpeg-libs/ \;
     - name: Commit and push changes
       run: |
         git config --local user.email "action@github.com"
@@ -59,4 +57,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ffmpeg-aar
-        path: Exoplayer/ffmpeg-libs/decoder_ffmpeg-release.aar
+        path: Exoplayer/ffmpeg-libs/*.aar
