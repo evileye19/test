@@ -24,10 +24,19 @@ jobs:
       run: |
         sdkmanager --install "ndk;${{ env.ANDROID_NDK_VERSION }}"
         echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/${{ env.ANDROID_NDK_VERSION }}" >> $GITHUB_ENV
-    - name: Install pkg-config
+    - name: Install pkg-config and handle missing Android pkg-config
       run: |
         sudo apt-get update
         sudo apt-get install -y pkg-config
+        # Buat pkg-config palsu untuk Android
+        sudo mkdir -p /usr/local/lib/android/sdk/ndk/${{ env.ANDROID_NDK_VERSION }}/toolchains/llvm/prebuilt/linux-x86_64/bin
+        sudo tee /usr/local/lib/android/sdk/ndk/${{ env.ANDROID_NDK_VERSION }}/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android19-pkg-config << EOF
+        #!/bin/sh
+        # pkg-config palsu untuk Android
+        echo "WARNING: Using dummy pkg-config for Android"
+        exit 0
+        EOF
+        sudo chmod +x /usr/local/lib/android/sdk/ndk/${{ env.ANDROID_NDK_VERSION }}/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android19-pkg-config
     - name: Build with Gradle
       run: |
         set -e
@@ -43,14 +52,23 @@ jobs:
         echo "ANDROID_ABI: $ANDROID_ABI"
         pushd $FFMPEG_EXT_PATH/jni
         git clone -b $FFMPEG git://source.ffmpeg.org/ffmpeg
+        # Modifikasi build_ffmpeg.sh untuk mengabaikan pkg-config jika diperlukan
+        sed -i 's/pkg-config/pkg-config --static/g' build_ffmpeg.sh
         ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM $ANDROID_ABI ${ENABLED_DECODERS[@]}
         popd
         # Periksa hasil build
+        echo "Isi dari $FFMPEG_EXT_PATH/jni/ffmpeg:"
         ls -R $FFMPEG_EXT_PATH/jni/ffmpeg/
     - name: Copy FFmpeg libs to folder
       run: |
         mkdir -p Exoplayer/ffmpeg-libs
-        cp -R ${{ env.FFMPEG_EXT_PATH }}/jni/ffmpeg/android-libs* Exoplayer/ffmpeg-libs/
+        # Coba cari file-file FFmpeg
+        find $FFMPEG_EXT_PATH -name "*.so" -o -name "*.a"
+        # Salin file-file yang ditemukan
+        find $FFMPEG_EXT_PATH -name "*.so" -o -name "*.a" -exec cp {} Exoplayer/ffmpeg-libs/ \;
+        # Periksa hasil penyalinan
+        echo "Isi dari Exoplayer/ffmpeg-libs:"
+        ls -l Exoplayer/ffmpeg-libs/
     - name: Commit and push changes
       run: |
         git config --local user.email "reynaldio@mail.kinoz.my.id"
