@@ -27,17 +27,10 @@ jobs:
         export ANDROID_SDK_ROOT=$ANDROID_HOME
         export NDK_PATH=$ANDROID_HOME/ndk/$ANDROID_NDK
         export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-        echo y | sdkmanager --update >> log.txt
-        echo y | sdkmanager --install "ndk;$ANDROID_NDK" >> log.txt
         git clone -b $MEDIA3 https://github.com/androidx/media.git
         export FFMPEG_EXT_PATH=$PWD/media/libraries/decoder_ffmpeg/src/main
         export HOST_PLATFORM="linux-x86_64"
         export ENABLED_DECODERS=(opus flac alac pcm_mulaw pcm_alaw mp3 amrnb amrwb aac ac3 eac3 dca mlp truehd vorbis)
-        echo "FFMPEG_EXT_PATH: $FFMPEG_EXT_PATH"
-        echo "NDK_PATH: $NDK_PATH"
-        echo "HOST_PLATFORM: $HOST_PLATFORM"
-        echo "ENABLED_DECODERS: ${ENABLED_DECODERS[@]}"
-        echo "ANDROID_ABI: $ANDROID_ABI"
         pushd $FFMPEG_EXT_PATH/jni
         git clone -b $FFMPEG git://source.ffmpeg.org/ffmpeg
         ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM $ANDROID_ABI ${ENABLED_DECODERS[@]}
