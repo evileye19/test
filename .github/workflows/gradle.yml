@@ -1,4 +1,4 @@
-name: Build Ffmpeg Media3
+name: Ffmpeg ExoPlayer
 
 on: workflow_dispatch
 
@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      ANDROID_NDK: "21.4.7075529"
+      ANDROID_NDK_VERSION: "21.4.7075529"
       MEDIA3: "1.4.1"
       FFMPEG: "release/5.0"
       ANDROID_ABI: 19  # Sesuaikan dengan minSdk aplikasi Anda
@@ -17,20 +17,25 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
+    - name: Install NDK
+      run: |
+        sdkmanager --install "ndk;${{ env.ANDROID_NDK_VERSION }}"
+        echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/${{ env.ANDROID_NDK_VERSION }}" >> $GITHUB_ENV
     - name: Build with Gradle
       run: |
         set -e
-        wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
-        unzip -qq commandlinetools-linux-7583922_latest.zip
-        mkdir -p android-sdk/cmdline-tools && mv cmdline-tools $_/latest
-        export ANDROID_HOME=$PWD/android-sdk
-        export ANDROID_SDK_ROOT=$ANDROID_HOME
-        export NDK_PATH=$ANDROID_HOME/ndk/$ANDROID_NDK
-        export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-        git clone -b $MEDIA3 https://github.com/androidx/media.git
-        export FFMPEG_EXT_PATH=$PWD/media/libraries/decoder_ffmpeg/src/main
+        export NDK_PATH=$ANDROID_NDK_HOME
         export HOST_PLATFORM="linux-x86_64"
         export ENABLED_DECODERS=(opus flac alac pcm_mulaw pcm_alaw mp3 amrnb amrwb aac ac3 eac3 dca mlp truehd vorbis)
+        git clone -b $MEDIA3 https://github.com/androidx/media.git
+        export FFMPEG_EXT_PATH=$PWD/media/libraries/decoder_ffmpeg/src/main
+        echo "FFMPEG_EXT_PATH: $FFMPEG_EXT_PATH"
+        echo "NDK_PATH: $NDK_PATH"
+        echo "HOST_PLATFORM: $HOST_PLATFORM"
+        echo "ENABLED_DECODERS: ${ENABLED_DECODERS[@]}"
+        echo "ANDROID_ABI: $ANDROID_ABI"
         pushd $FFMPEG_EXT_PATH/jni
         git clone -b $FFMPEG git://source.ffmpeg.org/ffmpeg
         ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM $ANDROID_ABI ${ENABLED_DECODERS[@]}
@@ -40,3 +45,5 @@ jobs:
       with:
         name: ffmpeg-libs
         path: ${{ env.FFMPEG_EXT_PATH }}/jni/ffmpeg/android-libs
+
+
