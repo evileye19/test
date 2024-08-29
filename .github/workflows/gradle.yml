@@ -24,19 +24,6 @@ jobs:
       run: |
         sdkmanager --install "ndk;${{ env.ANDROID_NDK_VERSION }}"
         echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/${{ env.ANDROID_NDK_VERSION }}" >> $GITHUB_ENV
-    - name: Install pkg-config and handle missing Android pkg-config
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y pkg-config
-        # Buat pkg-config palsu untuk Android
-        sudo mkdir -p /usr/local/lib/android/sdk/ndk/${{ env.ANDROID_NDK_VERSION }}/toolchains/llvm/prebuilt/linux-x86_64/bin
-        sudo tee /usr/local/lib/android/sdk/ndk/${{ env.ANDROID_NDK_VERSION }}/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android19-pkg-config << EOF
-        #!/bin/sh
-        # pkg-config palsu untuk Android
-        echo "WARNING: Using dummy pkg-config for Android"
-        exit 0
-        EOF
-        sudo chmod +x /usr/local/lib/android/sdk/ndk/${{ env.ANDROID_NDK_VERSION }}/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android19-pkg-config
     - name: Build with Gradle
       run: |
         set -e
@@ -71,8 +58,8 @@ jobs:
         ls -l Exoplayer/ffmpeg-libs/
     - name: Commit and push changes
       run: |
-        git config --local user.email "reynaldio@mail.kinoz.my.id"
-        git config --local user.name "evileye19"
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
         git add Exoplayer/ffmpeg-libs
         git commit -m "Add FFmpeg libs" || echo "No changes to commit"
         git push
