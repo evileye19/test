@@ -23,39 +23,22 @@ jobs:
     - name: Install NDK
       run: |
         sdkmanager --install "ndk;${{ env.ANDROID_NDK_VERSION }}"
-        echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/${{ env.ANDROID_NDK_VERSION }}" >> $GITHUB_ENV
     - name: Build with Gradle
       run: |
         set -e
         export NDK_PATH=$ANDROID_NDK_HOME
         export HOST_PLATFORM="linux-x86_64"
-        export ENABLED_DECODERS=(opus flac alac pcm_mulaw pcm_alaw mp3 amrnb amrwb aac ac3 eac3 dca mlp truehd vorbis)
+        export ENABLED_DECODERS=(vorbis opus flac alac pcm_mulaw pcm_alaw mp3 amrnb amrwb aac ac3 eac3 dca mlp truehd)
         git clone -b $MEDIA3 https://github.com/androidx/media.git
         export FFMPEG_EXT_PATH=$PWD/media/libraries/decoder_ffmpeg/src/main
-        echo "FFMPEG_EXT_PATH: $FFMPEG_EXT_PATH"
-        echo "NDK_PATH: $NDK_PATH"
-        echo "HOST_PLATFORM: $HOST_PLATFORM"
-        echo "ENABLED_DECODERS: ${ENABLED_DECODERS[@]}"
-        echo "ANDROID_ABI: $ANDROID_ABI"
         pushd $FFMPEG_EXT_PATH/jni
         git clone -b $FFMPEG git://source.ffmpeg.org/ffmpeg
-        # Modifikasi build_ffmpeg.sh untuk mengabaikan pkg-config jika diperlukan
-        sed -i 's/pkg-config/pkg-config --static/g' build_ffmpeg.sh
         ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM $ANDROID_ABI ${ENABLED_DECODERS[@]}
         popd
-        # Periksa hasil build
-        echo "Isi dari $FFMPEG_EXT_PATH/jni/ffmpeg:"
-        ls -R $FFMPEG_EXT_PATH/jni/ffmpeg/
-    - name: Copy FFmpeg libs to folder
+    - name: Copy FFmpeg to folder
       run: |
         mkdir -p Exoplayer/ffmpeg-libs
-        # Coba cari file-file FFmpeg
-        find $FFMPEG_EXT_PATH -name "*.so" -o -name "*.a"
-        # Salin file-file yang ditemukan
-        find $FFMPEG_EXT_PATH -name "*.so" -o -name "*.a" -exec cp {} Exoplayer/ffmpeg-libs/ \;
-        # Periksa hasil penyalinan
-        echo "Isi dari Exoplayer/ffmpeg-libs:"
-        ls -l Exoplayer/ffmpeg-libs/
+        cp media/libraries/decoder_ffmpeg/build/outputs/aar/decoder_ffmpeg-release.aar Exoplayer/ffmpeg-libs/
     - name: Commit and push changes
       run: |
         git config --local user.email "action@github.com"
@@ -63,4 +46,8 @@ jobs:
         git add Exoplayer/ffmpeg-libs
         git commit -m "Add FFmpeg libs" || echo "No changes to commit"
         git push
-
+    - name: Upload as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ffmpeg-aar
+        path: Exoplayer/ffmpeg-libs/decoder_ffmpeg-release.aar
