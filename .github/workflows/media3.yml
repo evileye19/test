@@ -48,6 +48,7 @@ jobs:
         find . -name "*.aar" -exec cp {} Exoplayer/ffmpeg-libs/ \;
     - name: Commit and push changes
       run: |
+        git pull
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add Exoplayer/ffmpeg-libs
