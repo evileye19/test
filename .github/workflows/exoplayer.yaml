@@ -35,10 +35,10 @@ jobs:
         rm -rf /usr/local/bin/cmake
         ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM ${ENABLED_DECODERS[@]}
         popd
-   - name: Build AAR
-      run: |
+   - name: Copy FFmpeg to folder
+     run: |
         cd media
-        ./gradlew :extension-ffmpeg:assembleRelease
+        ./gradlew :libraries:decoder_ffmpeg:assembleRelease
     - name: Copy FFmpeg to folder
       run: |
         mkdir -p Exoplayer/ffmpeg-libs
