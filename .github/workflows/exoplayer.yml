@@ -8,7 +8,7 @@ jobs:
     env:
       ANDROID_NDK: "21.4.7075529"
       EXOPLAYER: "r2.19.1"
-      FFMPEG: "release/6.0"
+      FFMPEG: "release/5.0"
     steps:
     - name: Set up checkout
       uses: actions/checkout@v2
