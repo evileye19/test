@@ -8,7 +8,7 @@ jobs:
     env:
       ANDROID_NDK_VERSION: "21.4.7075529"
       EXOPLAYER: "r2.19.1"
-      FFMPEG: "release/7.0"
+      FFMPEG: "release/5.0"
     steps:
     - name: Set up checkout
       uses: actions/checkout@v4
@@ -37,9 +37,7 @@ jobs:
         rm -rf /usr/local/bin/cmake
         ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM ${ENABLED_DECODERS[@]}
         popd
-    - name: Build AAR
-      run: |
-        cd media
+        pushd ExoPlayer
         ./gradlew :extension-ffmpeg:assembleRelease
     - name: Copy FFmpeg to folder
       run: |
