@@ -36,7 +36,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y cmake
 
-    - name: Build with gradle
+    - name: Build FFmpeg
       run: |
         set -e
         export NDK_PATH=$ANDROID_HOME/ndk/$ANDROID_NDK
@@ -46,7 +46,96 @@ jobs:
         export FFMPEG_MODULE_PATH=$PWD/ExoPlayer/extensions/ffmpeg/src/main
         pushd $FFMPEG_MODULE_PATH/jni
         git clone -b $FFMPEG git://source.ffmpeg.org/ffmpeg
-        ./build_ffmpeg.sh $FFMPEG_MODULE_PATH $NDK_PATH $HOST_PLATFORM ${ENABLED_DECODERS[@]}
+
+        # Build FFmpeg untuk armeabi-v7a
+        cd ffmpeg
+        ./configure \
+            --libdir=android-libs/armeabi-v7a \
+            --arch=arm \
+            --cpu=armv7-a \
+            --cross-prefix="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/armv7a-linux-androideabi16-" \
+            --nm="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-nm" \
+            --ar="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-ar" \
+            --ranlib="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-ranlib" \
+            --strip="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-strip" \
+            --extra-cflags="-march=armv7-a -mfloat-abi=softfp" \
+            --extra-ldflags="-Wl,--fix-cortex-a8" \
+            --enable-static \
+            --disable-shared \
+            --disable-doc \
+            --disable-programs \
+            --disable-everything \
+            --enable-swresample \
+            ${ENABLED_DECODERS[@]/#/--enable-decoder=}
+        make -j$(nproc)
+        make install-libs
+        make clean
+
+        # Build FFmpeg untuk arm64-v8a
+        ./configure \
+            --libdir=android-libs/arm64-v8a \
+            --arch=aarch64 \
+            --cpu=armv8-a \
+            --cross-prefix="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/aarch64-linux-android21-" \
+            --nm="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-nm" \
+            --ar="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-ar" \
+            --ranlib="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-ranlib" \
+            --strip="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-strip" \
+            --enable-static \
+            --disable-shared \
+            --disable-doc \
+            --disable-programs \
+            --disable-everything \
+            --enable-swresample \
+            ${ENABLED_DECODERS[@]/#/--enable-decoder=}
+        make -j$(nproc)
+        make install-libs
+        make clean
+
+        # Build FFmpeg untuk x86
+        ./configure \
+            --libdir=android-libs/x86 \
+            --arch=x86 \
+            --cpu=i686 \
+            --cross-prefix="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/i686-linux-android16-" \
+            --nm="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-nm" \
+            --ar="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-ar" \
+            --ranlib="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-ranlib" \
+            --strip="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-strip" \
+            --disable-asm \
+            --enable-static \
+            --disable-shared \
+            --disable-doc \
+            --disable-programs \
+            --disable-everything \
+            --enable-swresample \
+            ${ENABLED_DECODERS[@]/#/--enable-decoder=}
+        make -j$(nproc)
+        make install-libs
+        make clean
+
+        # Build FFmpeg untuk x86_64
+        ./configure \
+            --libdir=android-libs/x86_64 \
+            --arch=x86_64 \
+            --cpu=x86_64 \
+            --cross-prefix="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/x86_64-linux-android21-" \
+            --nm="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-nm" \
+            --ar="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-ar" \
+            --ranlib="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-ranlib" \
+            --strip="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin/llvm-strip" \
+            --disable-asm \
+            --enable-static \
+            --disable-shared \
+            --disable-doc \
+            --disable-programs \
+            --disable-everything \
+            --enable-swresample \
+            ${ENABLED_DECODERS[@]/#/--enable-decoder=}
+        make -j$(nproc)
+        make install-libs
+        make clean
+
         popd
         pushd ExoPlayer
         ./gradlew :extension-ffmpeg:assembleRelease
@@ -64,9 +153,6 @@ jobs:
         git add Exoplayer/ffmpeg-libs
         git commit -m "Add FFmpeg libs" || echo "No changes to commit"
         git push
-
-    - name: Output FFmpeg config log
-      run: cat $FFMPEG_MODULE_PATH/jni/ffbuild/config.log
 
     - name: Upload as artifact
       uses: actions/upload-artifact@v2
