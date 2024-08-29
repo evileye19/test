@@ -34,14 +34,14 @@ jobs:
         export HOST_PLATFORM="linux-x86_64"
         export ENABLED_DECODERS=(vorbis opus flac alac pcm_mulaw pcm_alaw mp3 amrnb amrwb aac ac3 eac3 dca mlp truehd)
         git clone -b $MEDIA3 https://github.com/androidx/media.git
-        export FFMPEG_EXT_PATH=$PWD/media/libraries/decoder_ffmpeg/src/main
-        pushd $FFMPEG_EXT_PATH/jni
+        export FFMPEG_MODULE_PATH=$PWD/media/libraries/decoder_ffmpeg/src/main
+        pushd $FFMPEG_MODULE_PATH/jni
         git clone -b $FFMPEG git://source.ffmpeg.org/ffmpeg
         rm -rf /usr/local/bin/cmake
-        ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM $ANDROID_ABI ${ENABLED_DECODERS[@]}
+        ./build_ffmpeg.sh $FFMPEG_MODULE_PATH $NDK_PATH $HOST_PLATFORM $ANDROID_ABI ${ENABLED_DECODERS[@]}
         popd
         pushd media
-        ./gradlew :libraries:decoder_ffmpeg:assembleRelease
+        ./gradlew :lib-decoder-ffmpeg:assembleRelease
     - name: Copy FFmpeg to folder
       run: |
         mkdir -p Exoplayer/ffmpeg-libs
