@@ -19,7 +19,7 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v4
+      uses: android-actions/setup-android@v3
     - name: Install NDK
       run: |
         sdkmanager --install "ndk;${{ env.ANDROID_NDK_VERSION }}"
