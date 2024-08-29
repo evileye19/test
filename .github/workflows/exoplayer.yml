@@ -39,7 +39,7 @@ jobs:
         popd
         pushd ExoPlayer
         ./gradlew :extension-ffmpeg:assembleRelease
-	- name: Copy FFmpeg to folder
+    - name: Copy FFmpeg to folder
       run: |
         mkdir -p Exoplayer/ffmpeg-libs
         find . -name "*.aar" -exec cp {} Exoplayer/ffmpeg-libs/ \;
