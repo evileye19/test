@@ -18,7 +18,14 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v2
+      run: |
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
+        unzip -qq commandlinetools-linux-7583922_latest.zip
+        mkdir -p android-sdk/cmdline-tools && mv cmdline-tools $_/latest
+        export ANDROID_HOME=$PWD/android-sdk
+        export ANDROID_SDK_ROOT=$ANDROID_HOME
+        export NDK_PATH=$ANDROID_HOME/ndk/$ANDROID_NDK
+        export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
     - name: Install NDK
       run: |
         sdkmanager --install "ndk;$ANDROID_NDK"
