@@ -27,7 +27,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y pkg-config
-    - name: Build with gradle
+    - name: Build FFmpeg Media3
       run: |
         set -e
         export NDK_PATH=$ANDROID_NDK_HOME
@@ -40,7 +40,7 @@ jobs:
         rm -rf /usr/local/bin/cmake
         ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM $ANDROID_ABI ${ENABLED_DECODERS[@]}
         popd
-    - name: Build AAR
+    - name: Build with gradle
       run: |
         cd media
         ./gradlew :libraries:decoder_ffmpeg:assembleRelease
