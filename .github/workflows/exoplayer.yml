@@ -27,10 +27,6 @@ jobs:
         export NDK_PATH=$ANDROID_HOME/ndk/$ANDROID_NDK
         export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
         sdkmanager --install "ndk;$ANDROID_NDK"
-    - name: Install pkg-config
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y pkg-config
     - name: Build with gradle
       run: |
         set -e
