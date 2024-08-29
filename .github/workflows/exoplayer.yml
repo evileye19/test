@@ -34,6 +34,7 @@ jobs:
         export ENABLED_DECODERS=(vorbis opus flac alac pcm_mulaw pcm_alaw mp3 amrnb amrwb aac ac3 eac3 dca mlp truehd)
         pushd $FFMPEG_EXT_PATH/jni
         git clone -b $FFMPEG git://source.ffmpeg.org/ffmpeg
+        sed -i 's/--disable-avresample//' build_ffmpeg.sh
         rm -rf /usr/local/bin/cmake
         ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM ${ENABLED_DECODERS[@]}
         popd
