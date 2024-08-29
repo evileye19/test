@@ -1,4 +1,4 @@
-name: CI
+name: Generate FFMPEG
 
 on: workflow_dispatch
 
