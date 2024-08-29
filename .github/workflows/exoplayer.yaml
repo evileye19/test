@@ -32,6 +32,8 @@ jobs:
         export FFMPEG_EXT_PATH=$PWD/ExoPlayer/extensions/ffmpeg/src/main
         pushd $FFMPEG_EXT_PATH/jni
         git clone -b $FFMPEG git://source.ffmpeg.org/ffmpeg
+        # Modify build_ffmpeg.sh
+        sed -i 's/--disable-avresample//' build_ffmpeg.sh
         rm -rf /usr/local/bin/cmake
         ./build_ffmpeg.sh $FFMPEG_EXT_PATH $NDK_PATH $HOST_PLATFORM ${ENABLED_DECODERS[@]}
         popd
