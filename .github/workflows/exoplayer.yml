@@ -46,9 +46,10 @@ jobs:
         pushd $FFMPEG_MODULE_PATH/jni
         git clone -b $FFMPEG git://source.ffmpeg.org/ffmpeg
 
-        # Clone your repo and copy build_ffmpeg.sh
+        # Clone your repo and copy build_ffmpeg.sh and ffmpeg_jni.cc
         git clone -b $YOUR_BRANCH $YOUR_REPO test-clone
         cp test-clone/build_ffmpeg.sh ./build_ffmpeg.sh
+        cp test-clone/ffmpeg_jni.cc ./ffmpeg_jni.cc
         
         rm -rf /usr/local/bin/cmake
         ./build_ffmpeg.sh $FFMPEG_MODULE_PATH $NDK_PATH $HOST_PLATFORM $ANDROID_ABI ${ENABLED_DECODERS[@]}
