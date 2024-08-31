@@ -47,7 +47,7 @@ jobs:
 
         # Clone your repo and copy build_ffmpeg.sh
         git clone -b $YOUR_BRANCH $YOUR_REPO test-clone
-        cp test-clone/build_ffmpeg.sh
+        cp test-clone/build_ffmpeg.sh ./build_ffmpeg.sh
         
         rm -rf /usr/local/bin/cmake
         ./build_ffmpeg.sh $FFMPEG_MODULE_PATH $NDK_PATH $HOST_PLATFORM $ANDROID_ABI ${ENABLED_DECODERS[@]}
