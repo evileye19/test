@@ -6,9 +6,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      ANDROID_NDK: "27.0.12077973"
+      ANDROID_NDK: "21.4.7075529"
       EXOPLAYER: "r2.19.1"
-      FFMPEG: "release/4.4"
+      FFMPEG: "release/7.0"
       ANDROID_ABI: 21
       YOUR_REPO: "https://github.com/evileye19/test.git"  # Ganti dengan URL repo Anda
       YOUR_BRANCH: "main"  # Ganti dengan branch yang berisi build_ffmpeg.sh
