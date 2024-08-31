@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eu
+
 FFMPEG_MODULE_PATH="$1"
 echo "FFMPEG_MODULE_PATH is ${FFMPEG_MODULE_PATH}"
 NDK_PATH="$2"
